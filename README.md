@@ -1,68 +1,123 @@
-# 🛡️ CovenantGuard AI
+🛡️ CovenantGuard AI
+> Real-time covenant monitoring and risk prioritization for loan portfolios.
+🚀 Elevator Pitch
+CovenantGuard AI automates loan covenant monitoring for banks and lenders.
+Instead of manually reviewing long financial documents and spreadsheets, the system provides a risk-first dashboard that instantly highlights covenant breaches such as Debt-to-Equity, Interest Coverage, and Liquidity ratios.
 
-> **Real-time covenant monitoring and risk prioritization for loan portfolios.**
 
-![Status](https://img.shields.io/badge/Status-Prototype-success)
-![Event](https://img.shields.io/badge/Hackathon-LMA%20EDGE%202026-blue)
-![Tech](https://img.shields.io/badge/Stack-Django%20%7C%20JS%20%7C%20Bootstrap-orange)
+🛑 The Problem
 
-### 🚀 The Elevator Pitch
-**CovenantGuard AI** automates the tedious, error-prone process of tracking loan covenants. Instead of bankers manually reviewing 200+ page PDFs, our system provides a **risk-first dashboard** that instantly highlights which loans are breaching their financial limits (e.g., Debt-to-Equity, Interest Coverage).
+⏱️ Manual Overload: Covenant checks are spreadsheet-heavy and time-consuming
 
----
+🚨 Late Detection: Breaches are often identified weeks too late
 
-### 🛑 The Problem
-* **Manual Overload:** Bankers spend hours calculating ratios manually from spreadsheets.
-* **Latency Risk:** Breaches are often detected weeks after they happen.
-* **Human Error:** Missed covenants lead to bad debt and regulatory fines.
+❌ Human Error: Missed breaches increase default risk and regulatory exposure
 
-### 💡 The Solution
-A centralized monitoring engine that ingests financial data and runs it against agreed covenant rules, providing:
-1.  **Risk-First Sorting:** Critical breaches appear at the top immediately.
-2.  **Visual Indicators:** Clear `Safe`, `Watch`, and `Critical` badges replacing complex spreadsheets.
-3.  **AI Insights:** Automated one-sentence explanations for *why* a loan is risky.
+💡 The Solution
 
----
+A lightweight, API-driven monitoring engine that:
 
-### 💰 Commercial Viability (Why LMA Needs This)
-* **Efficiency Gains:** Reduces covenant checking time by **70–80%** for operations teams.
-* **Risk Mitigation:** Early warning system prevents defaults before they become unmanageable.
-* **Scalability:** The architecture supports thousands of loans without performance lag.
+1. Evaluates financial ratios in real time
 
----
 
-### 🛠️ Tech Stack
-* **Backend:** Django (Python), Django REST Framework (DRF)
-* **Frontend:** Vanilla JavaScript, HTML5, Bootstrap 5 (Bank-Grade UI)
-* **Deployment:** Render (API) + Vercel (Client)
+2. Automatically classifies risk (Safe / Watch / Critical)
 
----
 
-### 📸 Key Features
-* **Dashboard:** High-level view of Total Exposure and Risk Counts.
-* **Smart Sorting:** The system thinks for you—sorting loans by risk severity automatically.
-* **Auto-Explanation:** Provides context (e.g., "Debt spiked by 20% due to merger").
+3. Explains breaches in plain language
 
----
 
-### 🚀 How to Run Locally
+4. Visualizes portfolio risk instantly
 
-1. **Clone the repository**
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/CovenantGuard.git](https://github.com/YOUR_USERNAME/CovenantGuard.git)
-   cd CovenantGuard
-  2. Backend Setup
+
+💰 Commercial Value (Why LMA Cares)
+
+⚡ 70–80% time reduction in covenant monitoring
+
+🔔 Early-warning system for credit risk teams
+
+📈 Scalable architecture for large loan portfolios
+
+🧾 Audit-ready transparency for compliance teams
+
+🛠️ Tech Stack
+
+Backend
+
+FastAPI (Python) – high-performance REST API
+
+Pydantic – data validation & schema enforcement
+Frontend
+
+Vanilla JavaScript
+
+HTML5 + CSS3
+
+Bank-grade dashboard UI
+
+Deployment
+
+API: Render
+
+Frontend: Vercel
+
+✨ Key Features
+
+📊 Portfolio Dashboard – exposure, risk counts, live status
+
+🔴 Risk-First Sorting – critical loans always on top
+
+🧠 Rule-Based AI Insights – instant explanation of breaches
+
+🎮 Simulation Mode – stress-test portfolio under market events
+
+💬 Interactive Chat Assistant – query portfolio in natural language
+
+
+🚀 How to Run Locally
+
+1️⃣ Clone Repository
+
+git clone https://github.com/YOUR_USERNAME/CovenantGuard.git
+cd CovenantGuard
+
+
+2️⃣ Backend (FastAPI)
+
 cd backend
 pip install -r requirements.txt
-python manage.py migrate
-python manage.py seed_db  # Loads demo data
-python manage.py runserver
+uvicorn main:app --reload
 
-3.Frontend Setup
-Go to frontend/js/app.js and ensure API_URL is pointing to localhost.
-Open frontend/index.html in your browser.
+API will run at:
+
+http://127.0.0.1:8000
+
+
+3️⃣ Frontend
+
+1. Open frontend/js/app.js
+
+
+2. Set:
+const API_URL = "http://127.0.0.1:8000/api/loans";
+
+3. Open frontend/index.html in browser
+
+
 🔮 Future Roadmap
-PDF Parsing: Integrate Google Gemini API to automatically extract covenant thresholds from scanned loan agreements.
-Email Alerts: Send automated emails to relationship managers upon covenant breach.
-Blockchain Audit: Hash compliance records on-chain for immutable audit trails.
-Built with ❤️ for the LMA EDGE Hackathon 2026
+
+📄 PDF Covenant Extraction (LLM-assisted parsing)
+
+🔔 Automated Alerts (email / Slack)
+
+🧠 Offline Risk Engine (embedded ML / rule engine)
+
+🔐 Immutable Audit Logs (hash-based compliance trail)
+
+
+🏁 Hackathon Note
+
+This prototype focuses on architecture, clarity, and risk prioritization rather than full LLM dependency.
+The system is designed to work even without external AI APIs, making it reliable, fast, and deployable in regulated environments.
+
+Built with ❤️ for LMA EDGE Hackathon 2026
+
