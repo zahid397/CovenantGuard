@@ -18,12 +18,12 @@
 <nav class="navbar">
   <div class="container nav-content">
     <div class="brand">
-      <i class="bi bi-shield-lock-fill text-primary"></i> CovenantGuard AI
+      <i class="bi bi-shield-lock-fill"></i> CovenantGuard AI
     </div>
     
     <div style="display: flex; align-items: center; gap: 15px;">
       <span class="tag d-none-mobile">LMA EDGE Hackathon 2026</span>
-      <div style="width: 32px; height: 32px; background: #e0e7ff; color: #0d6efd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+      <div style="width: 32px; height: 32px; background: #e0e7ff; color: #0d6efd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px;">
         ZH
       </div>
     </div>
@@ -32,14 +32,15 @@
 
 <section class="page-header">
   <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">
       <div>
         <h1>Portfolio Dashboard</h1>
         <p>Real-time covenant monitoring for loan portfolios</p>
       </div>
-      <div style="font-size: 12px; color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 5px;">
-        <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+      
+      <div style="font-size: 12px; color: #10b981; font-weight: 600; display: flex; align-items: center;">
         System Live
+        <span class="live-dot" style="width:8px;height:8px;background:#10b981;border-radius:50%;display:inline-block;margin-left:6px;"></span>
       </div>
     </div>
   </div>
@@ -76,9 +77,9 @@
     <div class="table-header">
       <div style="display: flex; align-items: center; gap: 8px;">
         <i class="bi bi-activity text-primary"></i>
-        <div class="table-title" style="font-weight: 700;">Live Risk Monitor</div>
+        <div class="table-title">Live Risk Monitor</div>
       </div>
-      <span class="table-sub" style="font-size: 12px; background: #f3f4f6; padding: 4px 8px; border-radius: 4px;">
+      <span class="table-sub" style="font-size: 11px; background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-weight: 600;">
         <i class="bi bi-sort-down"></i> Priority Sort
       </span>
     </div>
@@ -97,8 +98,9 @@
         </thead>
         <tbody id="loan-table">
           <tr>
-            <td colspan="6" style="text-align: center; padding: 30px; color: #9ca3af;">
-              Connecting to core engine...
+            <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p style="margin-top: 10px; font-size: 13px;">Connecting to CovenantGuard Core...</p>
             </td>
           </tr>
         </tbody>
@@ -108,7 +110,7 @@
 </section>
 
 <section class="container chart-section">
-  <h3 style="display: flex; align-items: center; gap: 8px;">
+  <h3 style="display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700;">
     <i class="bi bi-bar-chart-fill text-primary"></i> Risk Distribution
   </h3>
 
@@ -120,13 +122,13 @@
 </section>
 
 <section class="container chat-section">
-  <div class="chat-title" style="font-weight: 700; font-size: 18px; margin-bottom: 15px;">
+  <div class="chat-title" style="font-size: 18px; margin-bottom: 15px;">
     <i class="bi bi-robot"></i> Ask CovenantGuard
   </div>
 
   <div id="chat-box" class="chat-box">
     <div class="bot-msg">
-      👋 Hello! I am your AI compliance assistant. Ask me:
+      👋 Hello! I am your AI compliance assistant. Try asking:
       <br>• "Which loans are critical?"
       <br>• "Show me the watch list."
     </div>
@@ -146,8 +148,10 @@
   </div>
 </section>
 
-<footer style="text-align: center; padding: 30px 0; color: #9ca3af; font-size: 12px;">
-  <p>&copy; 2026 CovenantGuard AI. Built for LMA EDGE Hackathon.</p>
+<footer>
+  <div class="container" style="text-align: center; padding: 30px 0; color: #9ca3af; font-size: 12px;">
+    <p>&copy; 2026 CovenantGuard AI. Built for LMA EDGE Hackathon.</p>
+  </div>
 </footer>
 
 <script src="js/app.js"></script>
