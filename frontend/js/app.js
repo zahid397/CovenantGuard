@@ -1,20 +1,16 @@
 // ============================================
-// 🛡️ CovenantGuard AI – Frontend Logic (PRO)
+// 🛡️ CovenantGuard AI – Frontend Logic (ROBUST)
 // ============================================
 
-// ⚠️ Ensure this matches your Render URL perfectly
+// ⚠️ UPDATE THIS URL WITH YOUR RENDER URL
 const API_URL = "https://covenantguard.onrender.com/api/loans";
 
-// Global State
 let LOANS_DATA = [];
 
-// ============================================
-// 🚀 Initialize App
-// ============================================
 document.addEventListener("DOMContentLoaded", () => {
-    fetchData();
+    fetchData(); // Start fetch with retry logic
     
-    // Enable "Enter" key for chat input
+    // Enter key for chat
     const chatInput = document.getElementById("chat-input");
     if(chatInput) {
         chatInput.addEventListener("keypress", (e) => {
@@ -23,10 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// ============================================
-// 📡 Fetch Backend Data with Retry Logic
-// ============================================
-async function fetchData() {
+// ✅ Feature 1: Auto-Retry Logic for Sleeping Backend
+async function fetchData(retryCount = 0) {
     try {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error("Server Offline");
@@ -34,18 +28,26 @@ async function fetchData() {
         const data = await res.json();
         LOANS_DATA = data;
         
-        // Render data immediately
+        // Render only if valid data comes back
         renderTable(data);
 
     } catch (err) {
-        console.error("Fetch Error:", err);
-        // Graceful Error UI for Render Free Tier
+        console.error(`Fetch Attempt ${retryCount + 1} Failed:`, err);
+
+        // Retry 2 times before giving up
+        if (retryCount < 2) {
+            console.log("Retrying in 3 seconds...");
+            setTimeout(() => fetchData(retryCount + 1), 3000);
+            return;
+        }
+
+        // Final Error Message after retries
         document.getElementById("loan-table").innerHTML = `
             <tr>
                 <td colspan="6" style="text-align: center; padding: 40px;">
                     <div style="background: #fee2e2; color: #b91c1c; padding: 15px; border-radius: 8px; display: inline-block;">
                         <strong>⚠️ Connecting to CovenantGuard Core...</strong><br>
-                        <small>Render server is waking up. Please wait 30s and refresh.</small>
+                        <small>Server is waking up. Please refresh in 30 seconds.</small>
                     </div>
                 </td>
             </tr>
@@ -53,17 +55,26 @@ async function fetchData() {
     }
 }
 
-// ============================================
-// 📊 Render Table & Summary (Risk Sorted)
-// ============================================
 function renderTable(loans) {
     const tbody = document.getElementById("loan-table");
+    
+    // ✅ Feature 2: Empty Data Guard
+    if (!Array.isArray(loans) || loans.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center;padding:30px;color:#6b7280;">
+              No loan data available at the moment.
+            </td>
+          </tr>`;
+        return;
+    }
+
     let totalExposure = 0;
     let criticalCount = 0;
     let watchCount = 0;
     let safeCount = 0;
 
-    // 1️⃣ Priority Logic: Critical (3) > Watch (2) > Safe (1)
+    // Sort Priority: Critical (3) -> Watch (2) -> Safe (1)
     const priority = { "Critical": 3, "Watch": 2, "Safe": 1 };
 
     loans.sort((a, b) => {
@@ -74,26 +85,22 @@ function renderTable(loans) {
 
     tbody.innerHTML = "";
 
-    // 2️⃣ Loop & Render
     loans.forEach(loan => {
         const amount = parseFloat(loan.amount) || 0;
         totalExposure += amount;
         
-        // Loop through covenants (handling multiple covenants per loan support)
         loan.covenants.forEach(cov => {
-            // Stats Counting
             if (cov.status === "Critical") criticalCount++;
             else if (cov.status === "Watch") watchCount++;
             else safeCount++;
 
-            // Badge Styling
             let badgeClass = "badge-safe";
             if (cov.status === "Critical") badgeClass = "badge-risk";
             if (cov.status === "Watch") badgeClass = "badge-watch";
 
-            // Professional Currency Format
+            // Professional Format
             const formattedAmount = new Intl.NumberFormat('en-US', {
-                style: 'currency', currency: 'USD', maximumFractionDigits: 1, notation: "compact"
+                style: 'currency', currency: 'USD', notation: "compact"
             }).format(amount);
 
             const row = `
@@ -115,27 +122,20 @@ function renderTable(loans) {
         });
     });
 
-    // 3️⃣ Update Summary Cards
-    const exposureEl = document.getElementById("total-exposure");
-    if(exposureEl) {
-        exposureEl.innerText = new Intl.NumberFormat('en-US', {
-            style: 'currency', currency: 'USD', maximumFractionDigits: 1, notation: "compact"
-        }).format(totalExposure);
-    }
+    // Update Summary
+    const expEl = document.getElementById("total-exposure");
+    if(expEl) expEl.innerText = new Intl.NumberFormat('en-US', {
+        style: 'currency', currency: 'USD', notation: "compact"
+    }).format(totalExposure);
     
     document.getElementById("risk-count").innerText = criticalCount;
     document.getElementById("watch-count").innerText = watchCount;
 
-    // 4️⃣ Animate Charts
     animateCharts(criticalCount, watchCount, safeCount);
 }
 
-// ============================================
-// 📈 Smooth Chart Animation
-// ============================================
 function animateCharts(c, w, s) {
-    const total = c + w + s || 1; // Prevent division by zero
-
+    const total = c + w + s || 1;
     setBar("bar-critical", c, total);
     setBar("bar-watch", w, total);
     setBar("bar-safe", s, total);
@@ -145,15 +145,13 @@ function setBar(id, value, total) {
     const el = document.getElementById(id);
     if (el) {
         const pct = Math.round((value / total) * 100);
-        // Ensure minimal visibility (10%) if value > 0
-        el.style.width = value > 0 ? `${Math.max(pct, 10)}%` : "0%";
+        // ✅ Feature 4: UX Polish - Hide text if 0, dim if 0
+        el.style.width = value > 0 ? `${Math.max(pct, 5)}%` : "0%";
         el.innerText = value > 0 ? `${pct}%` : "";
+        el.style.opacity = value > 0 ? "1" : "0.5";
     }
 }
 
-// ============================================
-// 🤖 Smart Logic-Based Chat (Advanced)
-// ============================================
 function handleChat() {
     const input = document.getElementById("chat-input");
     const box = document.getElementById("chat-box");
@@ -161,71 +159,32 @@ function handleChat() {
 
     if (!text) return;
 
-    // User Message
     box.innerHTML += `<div class="user-msg">${input.value}</div>`;
     input.value = "";
     box.scrollTop = box.scrollHeight;
 
-    let reply = "I can analyze portfolio risks. Try asking 'Which loans are critical?'";
+    let reply = "I can analyze portfolio risks.";
 
-    // 🔍 Logic 1: Find Critical Loans (List ALL of them)
-    if (text.includes("critical") || text.includes("risk") || text.includes("danger")) {
-        const riskyLoans = LOANS_DATA.filter(l => 
-            l.covenants.some(c => c.status === "Critical")
-        );
-
-        if (riskyLoans.length > 0) {
-            const names = riskyLoans.map(l => l.borrower_name).join(", ");
-            reply = `⚠️ <strong>Critical Alert:</strong> The following borrowers have breached covenants: <strong>${names}</strong>. Review immediately.`;
+    // ✅ Feature 3: Chat Safety Guard
+    if (LOANS_DATA.length === 0) {
+        reply = "⚠️ Data not loaded yet. Please wait for the backend to wake up.";
+    } 
+    else if (text.includes("risk") || text.includes("critical")) {
+        const risky = LOANS_DATA.filter(l => l.covenants.some(c => c.status === "Critical"));
+        if (risky.length > 0) {
+            const names = risky.map(l => l.borrower_name).join(", ");
+            reply = `⚠️ <strong>Critical Alert:</strong> ${names} have breached covenants.`;
         } else {
-            reply = "✅ Great news! No critical risks detected in the portfolio.";
+            reply = "✅ No critical risks detected.";
         }
-    }
-    
-    // 🔍 Logic 2: Watch List
-    else if (text.includes("watch")) {
-        const watchLoans = LOANS_DATA.filter(l => 
-            l.covenants.some(c => c.status === "Watch")
-        );
-        if (watchLoans.length > 0) {
-            const names = watchLoans.map(l => l.borrower_name).join(", ");
-            reply = `👀 <strong>Watch List:</strong> Keep an eye on: <strong>${names}</strong>. They are approaching limits.`;
-        } else {
-            reply = "Watch list is currently empty.";
-        }
+    } else if (text.includes("safe")) {
+        const safeCount = LOANS_DATA.filter(l => l.covenants.every(c => c.status === "Safe")).length;
+        reply = `✅ <strong>${safeCount} loans</strong> are fully compliant.`;
+    } else if (text.includes("why")) {
+         const crit = LOANS_DATA.find(l => l.covenants.some(c => c.status === "Critical"));
+         reply = crit ? `💡 <strong>${crit.borrower_name}:</strong> ${crit.covenants[0].insight}` : "No breaches to explain.";
     }
 
-    // 🔍 Logic 3: Safe Loans
-    else if (text.includes("safe") || text.includes("healthy")) {
-        const safeCount = LOANS_DATA.filter(l => 
-            l.covenants.every(c => c.status === "Safe")
-        ).length;
-        reply = `✅ <strong>${safeCount} loans</strong> are fully compliant and financially healthy.`;
-    }
-
-    // 🔍 Logic 4: Explanation (Why?)
-    else if (text.includes("why") || text.includes("reason")) {
-        const critical = LOANS_DATA.find(l => l.covenants.some(c => c.status === "Critical"));
-        if (critical) {
-            const insight = critical.covenants.find(c => c.status === "Critical").insight;
-            reply = `💡 <strong>Insight for ${critical.borrower_name}:</strong> ${insight}`;
-        } else {
-            reply = "Since there are no critical breaches, no specific explanations are needed.";
-        }
-    }
-
-    // 🔍 Logic 5: Total Money
-    else if (text.includes("total") || text.includes("money") || text.includes("exposure")) {
-        const total = document.getElementById("total-exposure").innerText;
-        reply = `💰 Total Portfolio Exposure is currently <strong>${total}</strong>.`;
-    }
-
-    // Greetings
-    else if (text.includes("hi") || text.includes("hello")) {
-        reply = "👋 Hello! I am CovenantGuard AI. Ask me about portfolio health or specific breaches.";
-    }
-
-    // Bot Reply with delay
     setTimeout(() => {
         box.innerHTML += `<div class="bot-msg">${reply}</div>`;
         box.scrollTop = box.scrollHeight;
