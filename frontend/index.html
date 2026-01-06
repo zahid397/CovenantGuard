@@ -10,7 +10,7 @@
 </head>
 <body>
 
-  <!-- ===== NAVBAR ===== -->
+  <!-- NAVBAR -->
   <header class="navbar">
     <div class="container nav-content">
       <h1 class="brand">🛡️ CovenantGuard AI</h1>
@@ -18,7 +18,7 @@
     </div>
   </header>
 
-  <!-- ===== PAGE HEADER ===== -->
+  <!-- PAGE HEADER -->
   <section class="page-header">
     <div class="container">
       <h2>Portfolio Dashboard</h2>
@@ -26,11 +26,11 @@
     </div>
   </section>
 
-  <!-- ===== SUMMARY CARDS ===== -->
+  <!-- SUMMARY CARDS -->
   <section class="container summary">
     <div class="card">
       <p>Total Exposure</p>
-      <h3 id="total-exposure">Loading…</h3>
+      <h3 id="total-exposure">Loading...</h3>
     </div>
 
     <div class="card danger">
@@ -44,7 +44,7 @@
     </div>
   </section>
 
-  <!-- ===== TABLE ===== -->
+  <!-- TABLE -->
   <section class="container table-section">
     <div class="table-header">
       <h3>Live Risk Monitor</h3>
@@ -70,15 +70,30 @@
     </div>
   </section>
 
-  <!-- ===== CHAT PANEL ===== -->
+  <!-- CHART -->
+  <section class="container chart-section">
+    <h3>📊 Risk Distribution</h3>
+    <div class="bar-chart">
+      <div class="bar critical" id="bar-critical">Critical</div>
+      <div class="bar watch" id="bar-watch">Watch</div>
+      <div class="bar safe" id="bar-safe">Safe</div>
+    </div>
+  </section>
+
+  <!-- CHAT -->
   <section class="container chat-section">
-    <h3>Ask CovenantGuard</h3>
-    <div id="chat-box" class="chat-box"></div>
-    <input
-      type="text"
-      id="chat-input"
-      placeholder="Ask about risky loans, safe loans, or reasons..."
-    />
+    <h3>🤖 Ask CovenantGuard</h3>
+
+    <div id="chat-box" class="chat-box">
+      <div class="bot-msg">
+        Hello! Ask me about risky loans, safe loans, or reasons.
+      </div>
+    </div>
+
+    <div class="chat-input-row">
+      <input id="chat-input" placeholder="Which loan is most risky?" />
+      <button onclick="handleChat()">Send</button>
+    </div>
   </section>
 
   <!-- JS -->
