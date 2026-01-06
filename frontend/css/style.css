@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f5f7fb;
+    color: #1f2937;
+}
+
+.card-custom {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: none;
+    transition: transform 0.2s;
+}
+
+.card-custom:hover {
+    transform: translateY(-2px);
+}
+
+.table th {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 16px 10px;
+    font-size: 14px;
+}
+
+.badge-risk { background: #fee2e2; color: #b91c1c; padding: 6px 12px; border-radius: 50px; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; }
+.badge-watch { background: #fff7ed; color: #b45309; padding: 6px 12px; border-radius: 50px; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; }
+.badge-safe { background: #e6f9f0; color: #0f766e; padding: 6px 12px; border-radius: 50px; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; }
