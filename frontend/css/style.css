@@ -1,37 +1,163 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =========================
+   🌐 Global Base
+========================= */
+:root {
+    --primary: #2563eb;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --safe: #059669;
+    --bg: #f5f7fb;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --card-bg: #ffffff;
+    --border-soft: #e5e7eb;
+}
+
+* {
+    box-sizing: border-box;
+}
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f5f7fb;
-    color: #1f2937;
+    background-color: var(--bg);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
 }
 
+/* =========================
+   🧭 Navbar
+========================= */
+.navbar {
+    background: #ffffff;
+}
+
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+/* =========================
+   📦 Cards
+========================= */
 .card-custom {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: none;
-    transition: transform 0.2s;
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 26px;
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+    transition: all 0.25s ease;
 }
 
 .card-custom:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.08);
 }
 
-.table th {
-    font-size: 12px;
+/* =========================
+   📊 Table
+========================= */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    font-size: 11px;
     text-transform: uppercase;
-    color: #6b7280;
-    font-weight: 600;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border-soft);
 }
 
 .table td {
     vertical-align: middle;
-    padding: 16px 10px;
+    padding: 18px 14px;
     font-size: 14px;
+    border-bottom: 1px solid #eef2f7;
 }
 
-.badge-risk { background: #fee2e2; color: #b91c1c; padding: 6px 12px; border-radius: 50px; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; }
-.badge-watch { background: #fff7ed; color: #b45309; padding: 6px 12px; border-radius: 50px; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; }
-.badge-safe { background: #e6f9f0; color: #0f766e; padding: 6px 12px; border-radius: 50px; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; }
+.table tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* =========================
+   🏷️ Status Badges
+========================= */
+.badge-risk,
+.badge-watch,
+.badge-safe {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    display: inline-block;
+}
+
+.badge-risk {
+    background: #fee2e2;
+    color: var(--danger);
+}
+
+.badge-watch {
+    background: #fff7ed;
+    color: var(--warning);
+}
+
+.badge-safe {
+    background: #ecfdf5;
+    color: var(--safe);
+}
+
+/* =========================
+   📈 Dashboard Numbers
+========================= */
+h2 {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* =========================
+   🤖 AI Insight Styling
+========================= */
+td small {
+    line-height: 1.4;
+}
+
+/* =========================
+   🧊 Soft Animations
+========================= */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+tbody tr {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* =========================
+   📱 Responsive polish
+========================= */
+@media (max-width: 768px) {
+    .card-custom {
+        padding: 20px;
+    }
+
+    .table td {
+        font-size: 13px;
+        padding: 14px 10px;
+    }
+}
