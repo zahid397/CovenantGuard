@@ -1,163 +1,319 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* =========================
-   🌐 Global Base
-========================= */
+/* ===============================
+   🌐 GLOBAL
+================================ */
 :root {
-    --primary: #2563eb;
-    --danger: #dc2626;
-    --warning: #d97706;
-    --safe: #059669;
-    --bg: #f5f7fb;
-    --text-main: #1f2937;
-    --text-muted: #6b7280;
-    --card-bg: #ffffff;
-    --border-soft: #e5e7eb;
+  --primary: #2563eb;
+  --danger: #dc2626;
+  --warning: #f59e0b;
+  --safe: #16a34a;
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
 }
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg);
-    color: var(--text-main);
-    -webkit-font-smoothing: antialiased;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
 }
 
-/* =========================
-   🧭 Navbar
-========================= */
+/* ===============================
+   🧭 LAYOUT
+================================ */
+.container {
+  width: 92%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+h2, h3 {
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* ===============================
+   🧭 NAVBAR
+================================ */
 .navbar {
-    background: #ffffff;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
 }
 
-.navbar-brand {
-    font-weight: 800;
-    letter-spacing: -0.3px;
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
 }
 
-/* =========================
-   📦 Cards
-========================= */
-.card-custom {
-    background: var(--card-bg);
-    border-radius: 14px;
-    padding: 26px;
-    border: 1px solid var(--border-soft);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
-    transition: all 0.25s ease;
+.brand {
+  font-size: 22px;
+  font-weight: 800;
 }
 
-.card-custom:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+.tag {
+  font-size: 12px;
+  background: #eef2ff;
+  color: var(--primary);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
 }
 
-/* =========================
-   📊 Table
-========================= */
-.table {
-    margin-bottom: 0;
+/* ===============================
+   🧱 HEADER
+================================ */
+.page-header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  padding: 32px 0;
+  margin-bottom: 32px;
 }
 
-.table thead th {
-    font-size: 11px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    border-bottom: 1px solid var(--border-soft);
+.page-header p {
+  color: var(--text-muted);
 }
 
-.table td {
-    vertical-align: middle;
-    padding: 18px 14px;
-    font-size: 14px;
-    border-bottom: 1px solid #eef2f7;
+/* ===============================
+   📦 SUMMARY CARDS
+================================ */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
 }
 
-.table tbody tr:hover {
-    background: #f9fafb;
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 26px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+  transition: transform 0.25s ease;
 }
 
-/* =========================
-   🏷️ Status Badges
-========================= */
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.card h3 {
+  margin-top: 10px;
+}
+
+.card.danger {
+  border-left: 5px solid var(--danger);
+}
+
+.card.warning {
+  border-left: 5px solid var(--warning);
+}
+
+/* ===============================
+   📊 TABLE
+================================ */
+.table-section {
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 50px;
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 18px 24px;
+  background: #f9fafb;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 16px;
+  text-align: left;
+}
+
+tbody td {
+  padding: 18px 16px;
+  border-top: 1px solid #eef2f7;
+  font-size: 14px;
+}
+
+tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ===============================
+   🏷️ BADGES
+================================ */
 .badge-risk,
 .badge-watch,
 .badge-safe {
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-weight: 800;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 11px;
 }
 
 .badge-risk {
-    background: #fee2e2;
-    color: var(--danger);
+  background: #fee2e2;
+  color: var(--danger);
 }
 
 .badge-watch {
-    background: #fff7ed;
-    color: var(--warning);
+  background: #fff7ed;
+  color: var(--warning);
 }
 
 .badge-safe {
-    background: #ecfdf5;
-    color: var(--safe);
+  background: #ecfdf5;
+  color: var(--safe);
 }
 
-/* =========================
-   📈 Dashboard Numbers
-========================= */
-h2 {
-    font-weight: 800;
-    letter-spacing: -0.5px;
+/* ===============================
+   📊 CHART
+================================ */
+.chart-section {
+  margin-bottom: 60px;
 }
 
-.text-muted {
-    color: var(--text-muted) !important;
+.bar-chart {
+  display: flex;
+  gap: 24px;
+  align-items: flex-end;
+  height: 240px;
+  margin-top: 20px;
 }
 
-/* =========================
-   🤖 AI Insight Styling
-========================= */
-td small {
-    line-height: 1.4;
+.bar {
+  flex: 1;
+  border-radius: 14px 14px 0 0;
+  color: #ffffff;
+  font-weight: 700;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10px;
+  height: 0;
+  transition: height 1s ease;
 }
 
-/* =========================
-   🧊 Soft Animations
-========================= */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.bar.critical { background: var(--danger); }
+.bar.watch { background: var(--warning); }
+.bar.safe { background: var(--safe); }
+
+/* ===============================
+   🤖 CHAT
+================================ */
+.chat-section {
+  margin-bottom: 80px;
+}
+
+.chat-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  height: 260px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.bot-msg,
+.user-msg {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.bot-msg {
+  background: #f1f5f9;
+}
+
+.user-msg {
+  background: var(--primary);
+  color: white;
+  margin-left: auto;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input-row input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.chat-input-row button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ===============================
+   ✨ ANIMATION
+================================ */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 tbody tr {
-    animation: fadeIn 0.4s ease forwards;
+  animation: fadeUp 0.4s ease;
 }
 
-/* =========================
-   📱 Responsive polish
-========================= */
+/* ===============================
+   📱 RESPONSIVE
+================================ */
 @media (max-width: 768px) {
-    .card-custom {
-        padding: 20px;
-    }
+  .summary {
+    grid-template-columns: 1fr;
+  }
 
-    .table td {
-        font-size: 13px;
-        padding: 14px 10px;
-    }
+  .bar-chart {
+    height: 180px;
+  }
 }
