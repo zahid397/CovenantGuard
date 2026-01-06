@@ -43,6 +43,27 @@
   </div>
 </section>
 
+<section class="container" style="margin-bottom: 25px;">
+  <div style="background: #1e293b; color: #fff; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+    
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div id="sim-status-dot" style="width: 10px; height: 10px; background: #64748b; border-radius: 50%;"></div>
+      <div>
+        <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #e2e8f0;">AI Simulation</h4>
+        <small style="color: #94a3b8;" id="sim-status-text">Standby</small>
+      </div>
+    </div>
+
+    <div id="game-log" style="flex: 1; background: #0f172a; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #10b981; height: 36px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: flex; align-items: center;">
+      > Waiting for command...
+    </div>
+
+    <button onclick="toggleSimulation()" id="sim-btn" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;">
+      <i class="bi bi-play-fill"></i> Auto Play
+    </button>
+  </div>
+</section>
+
 <section class="container summary">
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center;">
