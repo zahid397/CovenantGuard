@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 set -o errexit
 
-echo "🔹 Installing dependencies..."
+pip install --upgrade pip
 pip install -r requirements.txt
 
-echo "🔹 Running migrations..."
-python manage.py migrate --noinput
-
-echo "🔹 Seeding demo data..."
-python manage.py seed_db || echo "Seed already exists, skipping."
-
-echo "✅ Build completed successfully."
+python manage.py collectstatic --noinput
+python manage.py migrate
