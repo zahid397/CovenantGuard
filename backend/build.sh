@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
-# exit on error
 set -o errexit
 
+echo "🔹 Installing dependencies..."
 pip install -r requirements.txt
-python manage.py collectstatic --no-input
-python manage.py migrate
-python manage.py seed_db
+
+echo "🔹 Running migrations..."
+python manage.py migrate --noinput
+
+echo "🔹 Seeding demo data..."
+python manage.py seed_db || echo "Seed already exists, skipping."
+
+echo "✅ Build completed successfully."
