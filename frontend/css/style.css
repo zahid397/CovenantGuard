@@ -25,7 +25,7 @@ body {
 .container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
 
 /* Glassmorphism */
-.glass { background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+.glass { background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); transition: box-shadow 0.3s ease, border-color 0.3s ease; }
 
 /* Navbar */
 .navbar { position: sticky; top: 0; z-index: 100; border-radius: 0 0 16px 16px; border-top: none; }
@@ -63,6 +63,11 @@ body {
 .stat-icon.orange { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 .danger-glow { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 12px rgba(239, 68, 68, 0.15); }
 
+/* ✅ PULSE ONCE (For Data Load Highlight) */
+.pulse-once {
+  animation: pulse-blue-flash 1s ease-out;
+}
+
 /* Terminal & Chat */
 .mid-section { display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; }
 .terminal-window { background: #09090b; display: flex; flex-direction: column; height: 380px; font-family: var(--font-mono); }
@@ -78,7 +83,7 @@ body {
 .msg.bot { background: rgba(255,255,255,0.08); align-self: flex-start; border-bottom-left-radius: 2px; }
 .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
 
-/* ✅ TYPING INDICATOR (Improved) */
+/* Typing Indicator */
 .typing { display: flex; align-items: center; gap: 6px; padding: 16px 20px; width: fit-content; min-width: 60px; }
 .typing span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
 .typing span:nth-child(1) { animation-delay: -0.32s; }
@@ -97,11 +102,11 @@ body {
 table { width: 100%; border-collapse: collapse; }
 th { text-align: left; padding: 16px 20px; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
 td { padding: 18px 20px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-tr:hover { background: rgba(59, 130, 246, 0.06); } /* ✅ Subtle Blue Hover */
+tr:hover { background: rgba(59, 130, 246, 0.06); } /* Subtle Blue Hover */
 
-/* ✅ STATUS BADGE (Fixed Width) */
+/* Status Badge */
 .status-badge {
-  min-width: 90px; /* ✅ Accessibility Fix */
+  min-width: 90px;
   text-align: center;
   display: inline-flex;
   justify-content: center;
@@ -123,6 +128,13 @@ tr:hover { background: rgba(59, 130, 246, 0.06); } /* ✅ Subtle Blue Hover */
 @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ✅ New Animation for .pulse-once */
+@keyframes pulse-blue-flash {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8); border-color: var(--primary); }
+  50% { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0); border-color: var(--primary); }
+  100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+}
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 40px 0; opacity: 0.7; }
@@ -130,4 +142,3 @@ footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; paddi
 .empty-state { text-align: center; padding: 60px !important; color: var(--text-muted); }
 .loading-row { text-align: center; padding: 40px; color: var(--text-muted); font-style: italic; }
 .spinner { display: inline-block; width: 1rem; height: 1rem; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s linear infinite; margin-right: 8px; }
-                                             
