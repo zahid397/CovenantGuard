@@ -14,8 +14,8 @@ const sendBtn = document.getElementById("send-btn");
 const chatBox = document.getElementById("chat-box");
 
 let allLoans = [];
+let lastLogTime = 0; // ✅ For throttling simulation logs
 
-// Helper: Currency Formatter
 const formatCurrency = (num) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -23,12 +23,6 @@ const formatCurrency = (num) => {
     notation: 'compact',
     maximumFractionDigits: 1
   }).format(num);
-};
-
-// Helper: Parse "4.2x" or "12%" to number (For robust comparison if needed)
-const parseMetric = (str) => {
-  if (typeof str !== 'string') return str;
-  return parseFloat(str.replace(/[^0-9.-]/g, ''));
 };
 
 // 1. Fetch Data
@@ -39,25 +33,20 @@ async function fetchData() {
     if (!res.ok) throw new Error("API Offline");
     allLoans = await res.json();
     render(allLoans);
-    logToTerminal("System synced. " + allLoans.length + " portfolios active.", "system");
+    
+    // ✅ Updated: Use Template Literal
+    logToTerminal(`System synced. ${allLoans.length} portfolios active.`, "system");
   } catch (err) {
     logToTerminal("Network unstable. Loading secure local simulation data.", "warn");
     loadMockData();
   }
 }
 
-// 2. Render Logic (With Empty State & Parsing Check)
+// 2. Render
 function render(loans) {
-  // Empty State Handling
   if (loans.length === 0) {
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="6" class="empty-state">
-          <i class="bi bi-search" style="font-size: 1.5rem; display:block; margin-bottom:10px;"></i>
-          No matching borrowers found in registry.
-        </td>
-      </tr>`;
-    return; // Stop execution
+    tableBody.innerHTML = `<tr><td colspan="6" class="empty-state"><i class="bi bi-search" style="font-size: 1.5rem; display:block; margin-bottom:10px;"></i>No matching borrowers found.</td></tr>`;
+    return;
   }
 
   let total = 0, critical = 0, watch = 0;
@@ -65,14 +54,8 @@ function render(loans) {
   const html = loans.map(l => {
     const c = l.covenants[0];
     total += l.amount;
-
-    // Logic: Status counting
     if (c.status === "Critical") critical++;
     if (c.status === "Watch") watch++;
-
-    // Engineering Note: Here we handle the string vs number safely
-    // const actualVal = parseMetric(c.actual); 
-    // const threshVal = parseMetric(c.threshold);
     
     let badgeClass = c.status === "Critical" ? "critical" : c.status === "Watch" ? "watch" : "safe";
 
@@ -89,99 +72,99 @@ function render(loans) {
   }).join("");
 
   tableBody.innerHTML = html;
-  
-  // Update Stats
   totalExposureEl.textContent = formatCurrency(total);
   riskCountEl.textContent = critical;
   watchCountEl.textContent = watch;
 }
 
-// 3. Mock Data (Fallback)
+// 3. Mock Data
 function loadMockData() {
   allLoans = [
     { borrower_name: "Apex Industries", amount: 15500000, covenants: [{ name: "Debt/EBITDA", actual: "4.5x", threshold: "4.0x", status: "Critical", insight: "EBITDA fell by 12% in Q3." }] },
     { borrower_name: "TechNova Inc.", amount: 8200000, covenants: [{ name: "Current Ratio", actual: "1.1x", threshold: "1.2x", status: "Watch", insight: "Cash reserves tightening." }] },
-    { borrower_name: "BlueSky Logistics", amount: 22000000, covenants: [{ name: "Interest Coverage", actual: "5.2x", threshold: "3.0x", status: "Safe", insight: "Operations are healthy." }] },
-    { borrower_name: "Quantum Retail", amount: 4500000, covenants: [{ name: "Leverage Ratio", actual: "3.8x", threshold: "3.5x", status: "Critical", insight: "Debt surge from acquisition." }] }
+    { borrower_name: "BlueSky Logistics", amount: 22000000, covenants: [{ name: "Interest Coverage", actual: "5.2x", threshold: "3.0x", status: "Safe", insight: "Operations are healthy." }] }
   ];
   render(allLoans);
 }
 
-// 4. Search Filter
 searchInput.addEventListener("input", (e) => {
   const term = e.target.value.toLowerCase();
-  const filtered = allLoans.filter(l => l.borrower_name.toLowerCase().includes(term));
-  render(filtered);
+  render(allLoans.filter(l => l.borrower_name.toLowerCase().includes(term)));
 });
 
-// 5. Terminal Logger
+// 4. Smart Logging (Prevents Spam)
 function logToTerminal(msg, type = "") {
+  // ✅ Logic: Prevent duplicate simulation logs within 3 seconds
+  const now = Date.now();
+  if (type === "sim" && now - lastLogTime < 3000) return; 
+  if (type === "sim") lastLogTime = now;
+
   const div = document.createElement("div");
-  div.className = `log-line ${type}`;
+  div.className = `log-line ${type === 'sim' ? 'system' : type}`;
   div.innerText = `> ${msg}`;
   gameLog.appendChild(div);
   gameLog.scrollTop = gameLog.scrollHeight;
 }
 
-// 6. Simulation Logic
+// 5. Simulation Logic
 simBtn.addEventListener("click", () => {
   if (simBtn.disabled) return;
   simBtn.disabled = true;
-  simBtn.innerHTML = `<span class="spinner-border"></span> Simulating...`;
+  simBtn.innerHTML = `<span class="spinner"></span> Simulating...`;
   
   logToTerminal("Initiating Monte Carlo Simulation...", "system");
-  setTimeout(() => logToTerminal("Stressing interest rates (+250bps)...", "warn"), 800);
-  setTimeout(() => logToTerminal("Adjusting sector risk premiums...", "system"), 1600);
+  
+  // Randomize scenarios to make it look alive
+  const scenarios = [
+    "Stressing interest rates (+250bps)...",
+    "Analyzing supply chain volatility...",
+    "Simulating GDP contraction of 2%..."
+  ];
+  const randomScenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+
+  setTimeout(() => logToTerminal(randomScenario, "warn"), 800);
   
   setTimeout(() => {
-    logToTerminal("CRITICAL: 2 new breaches detected in Retail sector.", "error");
+    logToTerminal("CRITICAL: New breach detected in Retail sector.", "error");
     simBtn.disabled = false;
     simBtn.innerHTML = `<i class="bi bi-cpu"></i> Run Simulation`;
     
-    // Visual effect only
-    riskCountEl.innerText = parseInt(riskCountEl.innerText) + 2;
+    riskCountEl.innerText = parseInt(riskCountEl.innerText) + 1;
     riskCountEl.parentElement.parentElement.classList.add("danger-glow");
   }, 2500);
 });
 
-// 7. Chat Interface (With Typing Animation)
+// 6. Chat with Typing Indicator (The Killer Polish ✨)
 async function sendChat() {
   const txt = chatInput.value.trim();
   if (!txt) return;
 
-  // User Msg
   chatBox.innerHTML += `<div class="msg user">${txt}</div>`;
   chatInput.value = "";
   chatBox.scrollTop = chatBox.scrollHeight;
 
-  // Typing Indicator (The Bonus ✨)
-  const typingId = "typing-" + Date.now();
-  chatBox.innerHTML += `
-    <div id="${typingId}" class="msg bot typing">
-      <span></span><span></span><span></span>
-    </div>
-  `;
+  // ✅ Step 1: Add Typing Bubble
+  const typingBubble = document.createElement("div");
+  typingBubble.className = "msg bot typing";
+  typingBubble.innerHTML = `<span></span><span></span><span></span>`;
+  chatBox.appendChild(typingBubble);
   chatBox.scrollTop = chatBox.scrollHeight;
 
-  // Delay for realism
+  // ✅ Step 2: Wait & Replace
   setTimeout(() => {
-    // Remove typing bubble
-    const typingEl = document.getElementById(typingId);
-    if (typingEl) typingEl.remove();
+    chatBox.removeChild(typingBubble); // Remove typing indicator
 
-    // Add actual response
-    let response = "I'm analyzing the real-time data feeds. The portfolio shows specific volatility in the manufacturing sector.";
-    if (txt.toLowerCase().includes("risk")) response = "Current risk exposure is $20.0M across 2 critical accounts. Recommendation: Immediate review of Apex Industries.";
-    if (txt.toLowerCase().includes("hello")) response = "Hello! I am CovenantGuard. Ready to assist with risk analysis.";
+    let response = "I'm monitoring the live data feed. No immediate anomalies detected in the last 5 minutes.";
+    if (txt.toLowerCase().includes("risk")) response = `Current exposure is ${totalExposureEl.textContent} with ${riskCountEl.textContent} critical accounts requiring attention.`;
+    if (txt.toLowerCase().includes("hello")) response = "Hello! I am CovenantGuard AI. Ready to assist with portfolio analysis.";
 
     chatBox.innerHTML += `<div class="msg bot">${response}</div>`;
     chatBox.scrollTop = chatBox.scrollHeight;
-  }, 1500);
+  }, 1500); // 1.5s delay for realism
 }
 
 sendBtn.addEventListener("click", sendChat);
 chatInput.addEventListener("keypress", (e) => e.key === "Enter" && sendChat());
 refreshBtn.addEventListener("click", fetchData);
 
-// Start
 fetchData();
