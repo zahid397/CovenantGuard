@@ -11,7 +11,7 @@ class CovenantGuard {
     this.isSimulating = false;
     this.debounceTimer = null;
     this.eventListeners = new Map();
-    this.SIMULATION_SPEED = 3000; // ms
+    this.SIMULATION_SPEED = 2500; // ms
     this.retryAttempts = 0;
     this.maxRetries = 5;
     
@@ -35,12 +35,10 @@ class CovenantGuard {
   setupErrorHandling() {
     window.addEventListener('error', (e) => {
       console.error('Global error:', e.error);
-      this.showToast('An error occurred. Please refresh.', 'error');
     });
 
     window.addEventListener('unhandledrejection', (e) => {
       console.error('Unhandled promise rejection:', e.reason);
-      this.showToast('Network issue detected.', 'warning');
     });
   }
 
@@ -48,7 +46,6 @@ class CovenantGuard {
     this.bindElements();
     this.setupEventListeners();
     this.fetchData();
-    this.startHealthCheck();
   }
 
   // ================= DOM BINDING =================
@@ -79,38 +76,11 @@ class CovenantGuard {
       });
     }
 
-    // Simulation button
+    // Simulation button is handled by global function
+    // We'll also add it here for consistency
     if (this.elements.simBtn) {
       this.addListener(this.elements.simBtn, 'click', () => this.toggleSimulation());
     }
-
-    // Search/Filter functionality
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-      this.addListener(searchInput, 'input', (e) => {
-        clearTimeout(this.debounceTimer);
-        this.debounceTimer = setTimeout(() => {
-          this.filterLoans(e.target.value);
-        }, 300);
-      });
-    }
-
-    // Refresh button
-    const refreshBtn = document.getElementById('refresh-btn');
-    if (refreshBtn) {
-      this.addListener(refreshBtn, 'click', () => this.fetchData());
-    }
-
-    // Keyboard shortcuts
-    this.addListener(document, 'keydown', (e) => {
-      if (e.ctrlKey && e.key === 'k') {
-        e.preventDefault();
-        searchInput?.focus();
-      }
-      if (e.key === 'Escape' && this.isSimulating) {
-        this.toggleSimulation();
-      }
-    });
   }
 
   addListener(element, event, handler) {
@@ -122,7 +92,19 @@ class CovenantGuard {
   // ================= DATA FETCHING =================
   async fetchData() {
     try {
-      this.showLoading(true);
+      // Show loading state in table
+      if (this.elements.loanTable) {
+        this.elements.loanTable.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <div class="spinner"></div>
+                <div>Loading loan data...</div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
       
       const response = await fetch(this.API_URL, {
         headers: {
@@ -142,11 +124,6 @@ class CovenantGuard {
       this.renderTable(this.LOANS_DATA);
       this.retryAttempts = 0; // Reset on success
       
-      // Show success toast
-      if (data.length > 0) {
-        this.showToast(`Loaded ${data.length} loans`, 'success');
-      }
-      
     } catch (error) {
       console.error('Fetch error:', error);
       
@@ -154,16 +131,13 @@ class CovenantGuard {
       if (this.BACKUP_DATA.length > 0) {
         this.LOANS_DATA = this.BACKUP_DATA;
         this.renderTable(this.LOANS_DATA);
-        this.showToast('Using demo data (backend offline)', 'warning');
+        this.updateGameLog('⚠️ Using demo data (backend offline)');
       } else if (this.retryAttempts < this.maxRetries) {
         this.retryAttempts++;
         setTimeout(() => this.fetchData(), 2000 * this.retryAttempts);
-        this.showToast(`Retrying... (${this.retryAttempts}/${this.maxRetries})`, 'info');
       } else {
         this.showErrorState();
       }
-    } finally {
-      this.showLoading(false);
     }
   }
 
@@ -206,7 +180,7 @@ class CovenantGuard {
     
     if (!loans || loans.length === 0) {
       this.elements.loanTable.innerHTML = this.getEmptyStateHTML();
-      this.updateStats(0, 0, 0, 0);
+      this.updateStats(0, 0, 0);
       return;
     }
 
@@ -215,7 +189,7 @@ class CovenantGuard {
     
     // Update stats
     const stats = this.calculateStats(sortedLoans);
-    this.updateStats(stats.total, stats.critical, stats.watch, stats.safe);
+    this.updateStats(stats.total, stats.critical, stats.watch);
     
     // Render rows
     this.elements.loanTable.innerHTML = sortedLoans.map((loan, index) => 
@@ -255,26 +229,34 @@ class CovenantGuard {
     const badgeClass = this.getBadgeClass(covenant.status);
     const animClass = loan.justUpdated ? this.getAnimationClass(covenant.status) : '';
     
+    // Calculate ratio percentage for visual indicator
+    const ratioPercent = Math.min((covenant.actual / covenant.threshold) * 100, 150);
+    
     return `
-      <tr class="loan-row ${animClass}" id="row-${index}" data-id="${loan.id}" data-status="${covenant.status}">
-        <td class="borrower-cell">
-          <div class="borrower-name">${this.escapeHTML(loan.borrower_name)}</div>
-          <div class="loan-id">ID: ${loan.id.substring(0, 8)}</div>
+      <tr class="${animClass}" id="row-${index}">
+        <td>
+          <strong>${this.escapeHTML(loan.borrower_name)}</strong>
+          <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">ID: ${loan.id.substring(0, 8)}</div>
         </td>
-        <td class="amount-cell">${formattedAmount}</td>
-        <td class="covenant-cell">${this.escapeHTML(covenant.name)}</td>
-        <td class="ratio-cell">
-          <div class="ratio-label">Limit: ${covenant.threshold.toFixed(2)}</div>
-          <div class="ratio-value">Actual: ${covenant.actual.toFixed(2)}</div>
-          <div class="ratio-bar">
-            <div class="ratio-fill" style="width: ${Math.min((covenant.actual / covenant.threshold) * 100, 100)}%"></div>
+        <td><strong>${formattedAmount}</strong></td>
+        <td>${this.escapeHTML(covenant.name)}</td>
+        <td>
+          <div style="margin-bottom: 4px;">
+            <span style="font-size: 12px; color: #6b7280;">Limit: ${covenant.threshold.toFixed(2)}</span>
+            <br>
+            <strong style="color: ${covenant.actual > covenant.threshold ? '#dc2626' : '#059669'}">
+              Actual: ${covenant.actual.toFixed(2)}
+            </strong>
+          </div>
+          <div style="background: #e5e7eb; height: 4px; border-radius: 2px; overflow: hidden;">
+            <div style="width: ${ratioPercent}%; height: 100%; background: ${covenant.actual > covenant.threshold ? '#dc2626' : covenant.actual > covenant.threshold * 0.8 ? '#f59e0b' : '#10b981'};"></div>
           </div>
         </td>
-        <td class="status-cell">
-          <span class="status-badge ${badgeClass}">${covenant.status}</span>
+        <td>
+          <span class="${badgeClass}">${covenant.status}</span>
         </td>
-        <td class="insight-cell">
-          <i class="bi bi-robot"></i> ${this.escapeHTML(covenant.insight)}
+        <td style="font-size: 12px; color: #6b7280;">
+          <i class="bi bi-robot" style="margin-right: 4px;"></i>${this.escapeHTML(covenant.insight)}
         </td>
       </tr>
     `;
@@ -283,13 +265,12 @@ class CovenantGuard {
   getEmptyStateHTML() {
     return `
       <tr>
-        <td colspan="6" class="empty-state">
-          <div class="empty-content">
-            <i class="bi bi-database-x"></i>
-            <h4>No loan data available</h4>
-            <p>Try refreshing or check your connection</p>
-            <button class="btn-refresh" onclick="app.fetchData()">
-              <i class="bi bi-arrow-clockwise"></i> Refresh Data
+        <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <i class="bi bi-database-x" style="font-size: 32px;"></i>
+            <div>No loan data available</div>
+            <button onclick="app.fetchData()" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+              <i class="bi bi-arrow-clockwise"></i> Refresh
             </button>
           </div>
         </td>
@@ -319,7 +300,7 @@ class CovenantGuard {
       this.runGameTick();
     }, this.SIMULATION_SPEED);
     
-    this.logGameEvent('🚀 Simulation Engine Started');
+    this.updateGameLog('🚀 Simulation Engine Started');
   }
 
   stopSimulation() {
@@ -327,7 +308,7 @@ class CovenantGuard {
       clearInterval(this.simulationInterval);
       this.simulationInterval = null;
     }
-    this.logGameEvent('⏸️ Simulation Paused');
+    this.updateGameLog('⏸️ Simulation Paused');
   }
 
   runGameTick() {
@@ -354,7 +335,8 @@ class CovenantGuard {
     
     // Re-render and log
     this.renderTable(this.LOANS_DATA);
-    this.logGameEvent(`> ${event.text} ${changes}`);
+    this.animateCharts();
+    this.updateGameLog(`> ${event.text} ${changes}`);
   }
 
   applyEventEffects(loan, covenant, event) {
@@ -476,25 +458,25 @@ class CovenantGuard {
 
   // ================= UTILITIES =================
   formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
+    if (amount >= 1000000) {
+      return `$${(amount / 1000000).toFixed(1)}M`;
+    } else if (amount >= 1000) {
+      return `$${(amount / 1000).toFixed(1)}K`;
+    }
+    return `$${amount.toFixed(0)}`;
   }
 
   getBadgeClass(status) {
-    const classes = {
-      'Critical': 'badge-risk',
-      'Watch': 'badge-watch',
-      'Safe': 'badge-safe'
-    };
-    return classes[status] || 'badge-safe';
+    if (status === 'Critical') {
+      return 'badge-risk';
+    } else if (status === 'Watch') {
+      return 'badge-watch';
+    }
+    return 'badge-safe';
   }
 
   getAnimationClass(status) {
-    return status === 'Critical' ? 'flash-critical' : 'flash-update';
+    return status === 'Critical' ? 'flash-critical' : 'flash-safe';
   }
 
   escapeHTML(str) {
@@ -503,20 +485,19 @@ class CovenantGuard {
     return div.innerHTML;
   }
 
-  logGameEvent(message) {
+  updateGameLog(message) {
     if (!this.elements.gameLog) return;
     
-    const log = this.elements.gameLog;
-    log.textContent = message;
-    log.style.opacity = '0';
+    this.elements.gameLog.textContent = message;
+    this.elements.gameLog.style.opacity = '0';
     
-    requestAnimationFrame(() => {
-      log.style.transition = 'opacity 0.3s ease';
-      log.style.opacity = '1';
-    });
+    setTimeout(() => {
+      this.elements.gameLog.style.transition = 'opacity 0.3s ease';
+      this.elements.gameLog.style.opacity = '1';
+    }, 200);
   }
 
-  updateStats(total, critical, watch, safe) {
+  updateStats(total, critical, watch) {
     if (this.elements.totalExposure) {
       this.elements.totalExposure.textContent = this.formatCurrency(total);
     }
@@ -528,11 +509,19 @@ class CovenantGuard {
     }
     
     // Update charts
-    this.animateCharts(critical, watch, safe);
+    this.animateCharts(critical, watch);
   }
 
-  animateCharts(critical, watch, safe) {
-    const total = critical + watch + safe || 1;
+  animateCharts(critical = null, watch = null) {
+    // Calculate stats if not provided
+    if (critical === null || watch === null) {
+      const stats = this.calculateStats(this.LOANS_DATA);
+      critical = stats.critical;
+      watch = stats.watch;
+    }
+    
+    const safe = this.LOANS_DATA.length - critical - watch;
+    const total = this.LOANS_DATA.length || 1;
     
     const bars = [
       { id: 'bar-critical', value: critical },
@@ -544,7 +533,7 @@ class CovenantGuard {
       const element = document.getElementById(bar.id);
       if (element) {
         const percentage = Math.round((bar.value / total) * 100);
-        element.style.width = bar.value ? `${Math.max(percentage, 6)}%` : '0%';
+        element.style.width = bar.value ? `${Math.max(percentage, 10)}%` : '0%';
         element.textContent = bar.value ? `${percentage}%` : '';
       }
     });
@@ -554,86 +543,37 @@ class CovenantGuard {
     if (!this.elements.simBtn || !this.elements.simStatusText || !this.elements.simStatusDot) return;
     
     if (this.isSimulating) {
-      this.elements.simBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause Simulation';
-      this.elements.simBtn.classList.add('simulating');
-      this.elements.simStatusText.textContent = 'Live Simulation Running';
-      this.elements.simStatusText.classList.add('active');
-      this.elements.simStatusDot.classList.add('active');
+      this.elements.simBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause Sim';
+      this.elements.simBtn.style.background = '#dc2626';
+      this.elements.simStatusText.textContent = 'Running Real-time Scenario...';
+      this.elements.simStatusText.style.color = '#10b981';
+      this.elements.simStatusDot.style.background = '#10b981';
+      this.elements.simStatusDot.style.boxShadow = '0 0 10px #10b981';
     } else {
       this.elements.simBtn.innerHTML = '<i class="bi bi-play-fill"></i> Auto Play';
-      this.elements.simBtn.classList.remove('simulating');
-      this.elements.simStatusText.textContent = 'Simulation Paused';
-      this.elements.simStatusText.classList.remove('active');
-      this.elements.simStatusDot.classList.remove('active');
+      this.elements.simBtn.style.background = '#3b82f6';
+      this.elements.simStatusText.textContent = 'System Standby';
+      this.elements.simStatusText.style.color = '#94a3b8';
+      this.elements.simStatusDot.style.background = '#64748b';
+      this.elements.simStatusDot.style.boxShadow = 'none';
     }
-  }
-
-  showLoading(show) {
-    const loader = document.getElementById('loader');
-    if (loader) {
-      loader.style.display = show ? 'flex' : 'none';
-    }
-  }
-
-  showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-      <div class="toast-content">
-        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-        <span>${message}</span>
-      </div>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => toast.classList.add('show'), 10);
-    setTimeout(() => {
-      toast.classList.remove('show');
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
   }
 
   animateRows() {
-    const rows = document.querySelectorAll('.loan-row');
-    rows.forEach((row, index) => {
-      row.style.animationDelay = `${index * 0.05}s`;
+    const rows = document.querySelectorAll('.flash-critical, .flash-safe');
+    rows.forEach(row => {
+      setTimeout(() => {
+        row.classList.remove('flash-critical', 'flash-safe');
+      }, 1000);
     });
-  }
-
-  filterLoans(searchTerm) {
-    if (!searchTerm) {
-      this.renderTable(this.LOANS_DATA);
-      return;
-    }
-    
-    const filtered = this.LOANS_DATA.filter(loan => 
-      loan.borrower_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      loan.covenants.some(cov => 
-        cov.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-    
-    this.renderTable(filtered);
-  }
-
-  startHealthCheck() {
-    // Periodic health check every 60 seconds
-    setInterval(async () => {
-      try {
-        await fetch(this.API_URL, { method: 'HEAD' });
-      } catch (error) {
-        console.warn('Health check failed:', error);
-      }
-    }, 60000);
   }
 
   getSimulationEvents() {
     return [
-      { type: 'CRASH', text: '📉 Market Downturn Detected' },
-      { type: 'BOOM', text: '📈 Revenue Exceeds Forecast' },
-      { type: 'DEBT', text: '⚠️ Additional Debt Issued' },
-      { type: 'PAY', text: '✅ Loan Payment Received' },
+      { type: 'CRASH', text: '📉 Market Crash! Asset values dropping.' },
+      { type: 'BOOM', text: '📈 Revenue Spike! Strong results.' },
+      { type: 'DEBT', text: '⚠️ New Debt Acquired. Leverage increasing.' },
+      { type: 'PAY', text: '✅ Loan Repayment Processed.' },
       { type: 'MERGED', text: '🏛️ M&A Activity Reported' },
       { type: 'AUDIT', text: '🔍 Financial Audit Complete' }
     ];
@@ -690,6 +630,32 @@ class CovenantGuard {
           status: 'Watch',
           insight: 'Approaching covenant limit'
         }]
+      },
+      {
+        id: 'demo-3',
+        borrower_name: 'Retail Group Ltd',
+        amount: 3200000,
+        original_amount: 3200000,
+        covenants: [{
+          name: 'Current Ratio',
+          threshold: 1.5,
+          actual: 1.2,
+          status: 'Safe',
+          insight: 'Within acceptable range'
+        }]
+      },
+      {
+        id: 'demo-4',
+        borrower_name: 'Energy Solutions',
+        amount: 9500000,
+        original_amount: 9500000,
+        covenants: [{
+          name: 'Leverage Ratio',
+          threshold: 4.0,
+          actual: 4.5,
+          status: 'Critical',
+          insight: 'Breach detected - immediate review needed'
+        }]
       }
     ];
   }
@@ -698,12 +664,12 @@ class CovenantGuard {
     if (this.elements.loanTable) {
       this.elements.loanTable.innerHTML = `
         <tr>
-          <td colspan="6" class="error-state">
-            <div class="error-content">
-              <i class="bi bi-wifi-off"></i>
-              <h4>Connection Failed</h4>
-              <p>Unable to reach the server. Using demo data.</p>
-              <button class="btn-retry" onclick="app.fetchData()">
+          <td colspan="6" style="text-align: center; padding: 40px; color: #dc2626;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+              <i class="bi bi-wifi-off" style="font-size: 32px;"></i>
+              <div style="font-weight: 600;">Connection Failed</div>
+              <div style="font-size: 14px;">Unable to reach the server. Please check your connection.</div>
+              <button onclick="app.fetchData()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
                 <i class="bi bi-arrow-clockwise"></i> Retry Connection
               </button>
             </div>
@@ -712,39 +678,105 @@ class CovenantGuard {
       `;
     }
     
-    this.showToast('Backend offline. Using demo mode.', 'warning');
+    this.updateGameLog('⚠️ Backend connection failed');
   }
 
   addChatMessage(message, sender) {
     if (!this.elements.chatBox) return;
     
     const msgDiv = document.createElement('div');
-    msgDiv.className = `chat-message ${sender}-message`;
-    msgDiv.innerHTML = `
-      <div class="message-content">
-        ${sender === 'bot' ? '<i class="bi bi-robot"></i>' : '<i class="bi bi-person"></i>'}
-        <div class="message-text">${message}</div>
-      </div>
-      <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-    `;
+    msgDiv.className = `${sender === 'bot' ? 'bot-msg' : 'user-msg'}`;
+    msgDiv.innerHTML = message;
     
     this.elements.chatBox.appendChild(msgDiv);
     this.elements.chatBox.scrollTop = this.elements.chatBox.scrollHeight;
-    
-    // Auto-scroll with smooth animation
-    msgDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
 }
 
-// ================= INSTANTIATE & EXPORT =================
+// ================= INSTANTIATE =================
 const app = new CovenantGuard();
 
-// Export for global access (if needed)
-if (typeof window !== 'undefined') {
-  window.CovenantGuard = app;
+// ================= GLOBAL FUNCTIONS =================
+// These are called from HTML onclick attributes
+function toggleSimulation() {
+  app.toggleSimulation();
 }
 
-// Enable hot module replacement for development
-if (import.meta.hot) {
-  import.meta.hot.accept();
+function handleChat() {
+  app.handleChat();
 }
+
+// Also allow pressing Enter in chat
+document.addEventListener('DOMContentLoaded', function() {
+  const chatInput = document.getElementById('chat-input');
+  if (chatInput) {
+    chatInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        handleChat();
+      }
+    });
+  }
+});
+
+// Add CSS for animations
+const style = document.createElement('style');
+style.textContent = `
+  .spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .flash-critical {
+    animation: flashCritical 1s ease;
+  }
+  
+  .flash-safe {
+    animation: flashSafe 1s ease;
+  }
+  
+  @keyframes flashCritical {
+    0%, 100% { background: transparent; }
+    50% { background: rgba(220, 38, 38, 0.1); }
+  }
+  
+  @keyframes flashSafe {
+    0%, 100% { background: transparent; }
+    50% { background: rgba(16, 185, 129, 0.1); }
+  }
+  
+  .badge-risk, .badge-watch, .badge-safe {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .badge-risk {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+  }
+  
+  .badge-watch {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  
+  .badge-safe {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+`;
+document.head.appendChild(style);
