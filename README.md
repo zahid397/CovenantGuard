@@ -1,17 +1,37 @@
-🛡️ CovenantGuard AI
-> Real-time covenant monitoring and risk prioritization for loan portfolios.
+
+🛡️ CovenantGuard AI — Hackathon Prototype
+
+> Real-time covenant monitoring and risk prioritization for loan portfolio
+
 🚀 Elevator Pitch
+
 CovenantGuard AI automates loan covenant monitoring for banks and lenders.
-Instead of manually reviewing long financial documents and spreadsheets, the system provides a risk-first dashboard that instantly highlights covenant breaches such as Debt-to-Equity, Interest Coverage, and Liquidity ratios.
+
+Instead of manually reviewing long financial documents and spreadsheet-based covenant checks, the system provides a risk-first dashboard that instantly highlights covenant breaches such as:
+
+Debt-to-Equity
+
+Interest Coverage
+
+Liquidity ratios
+
+
+The goal is early risk visibility, not after-the-fact reporting.
 
 
 🛑 The Problem
 
-⏱️ Manual Overload: Covenant checks are spreadsheet-heavy and time-consuming
+Loan covenant monitoring today is still largely manual and reactive.
 
-🚨 Late Detection: Breaches are often identified weeks too late
+⏱️ Manual Overload
+Covenant checks are spreadsheet-heavy, repetitive, and time-consuming
 
-❌ Human Error: Missed breaches increase default risk and regulatory exposure
+🚨 Late Detection
+Breaches are often identified weeks too late
+
+❌ Human Error
+Missed breaches increase default risk and regulatory exposure
+
 
 💡 The Solution
 
@@ -23,10 +43,12 @@ A lightweight, API-driven monitoring engine that:
 2. Automatically classifies risk (Safe / Watch / Critical)
 
 
-3. Explains breaches in plain language
+3. Explains covenant breaches in plain language
 
 
 4. Visualizes portfolio risk instantly
+
+
 
 
 💰 Commercial Value (Why LMA Cares)
@@ -37,22 +59,30 @@ A lightweight, API-driven monitoring engine that:
 
 📈 Scalable architecture for large loan portfolios
 
-🧾 Audit-ready transparency for compliance teams
+🧾 Audit-ready transparency foh7r compliance teams
+
+
+
 
 🛠️ Tech Stack
 
 Backend
 
-FastAPI (Python) – high-performance REST API
+FastAPI (Python) – High-performance REST API
 
-Pydantic – data validation & schema enforcement
+Pydantic – Data validation & schema enforcement
+
+Rule Engine – Deterministic, explainable risk classification logic
+
+
 Frontend
 
-Vanilla JavaScript
+Vanilla JavaScript – Lightweight, framework-free UI
 
-HTML5 + CSS3
+HTML5 + CSS3 – Clean, responsive dashboard
 
-Bank-grade dashboard UI
+Risk-first UI – Critical loans surfaced immediately
+
 
 Deployment
 
@@ -60,18 +90,30 @@ API: Render
 
 Frontend: Vercel
 
+
+
+---
+
 ✨ Key Features
 
-📊 Portfolio Dashboard – exposure, risk counts, live status
+📊 Portfolio Dashboard
+Exposure overview, risk counts, live loan status
 
-🔴 Risk-First Sorting – critical loans always on top
+🔴 Risk-First Sorting
+Critical loans always pinned to the top
 
-🧠 Rule-Based AI Insights – instant explanation of breaches
+🧠 Explainable Risk Insights
+Plain-language explanations for covenant breaches
 
-🎮 Simulation Mode – stress-test portfolio under market events
+🎮 Simulation Mode
+Stress-test portfolio under hypothetical market events
 
-💬 Interactive Chat Assistant – query portfolio in natural language
+💬 Interactive Chat Assistant
+Query portfolio data using natural language
 
+
+
+---
 
 🚀 How to Run Locally
 
@@ -80,7 +122,6 @@ Frontend: Vercel
 git clone https://github.com/YOUR_USERNAME/CovenantGuard.git
 cd CovenantGuard
 
-
 2️⃣ Backend (FastAPI)
 
 cd backend
@@ -88,9 +129,10 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 
 API will run at:
+👉 http://127.0.0.1:8000
 
-http://127.0.0.1:8000
 
+---
 
 3️⃣ Frontend
 
@@ -98,26 +140,86 @@ http://127.0.0.1:8000
 
 
 2. Set:
+
+
+
 const API_URL = "http://127.0.0.1:8000/api/loans";
 
-3. Open frontend/index.html in browser
+3. Open frontend/index.html in your browser
 
+
+
+
+---
 
 🔮 Future Roadmap
 
 📄 PDF Covenant Extraction (LLM-assisted parsing)
 
-🔔 Automated Alerts (email / Slack)
+🔔 Automated Alerts (Email / Slack)
 
-🧠 Offline Risk Engine (embedded ML / rule engine)
+🧠 Offline Risk Engine (Embedded ML / rule engine)
 
-🔐 Immutable Audit Logs (hash-based compliance trail)
+🔐 Immutable Audit Logs (Hash-based compliance trail)
 
+
+
+---
 
 🏁 Hackathon Note
 
-This prototype focuses on architecture, clarity, and risk prioritization rather than full LLM dependency.
-The system is designed to work even without external AI APIs, making it reliable, fast, and deployable in regulated environments.
+This prototype focuses on architecture clarity, explainability, and risk prioritization rather than full LLM dependency.
+
+Some features (e.g. PDF parsing, authentication) were intentionally deferred to keep the system:
+
+Fast
+
+Auditable
+
+Deployable in regulated environments
+
+
+The system is designed to function even without external AI APIs, reducing operational risk.
 
 Built with ❤️ for LMA EDGE Hackathon 2026
+
+
+---
+
+🙌 Why This Project
+
+During hackathons and real-world finance discussions, I noticed that loan covenant monitoring is still heavily manual and spreadsheet-driven.
+
+As a solo builder, I wanted to explore whether a lightweight system could surface risk signals earlier without relying entirely on black-box AI.
+
+
+---
+
+⚖️ Tradeoffs & Limitations
+
+Due to hackathon time constraints:
+
+PDF covenant extraction is planned but not implemented
+
+No authentication layer is included
+
+Risk classification is rule-based, not ML-trained
+
+
+These are conscious design choices to prioritize:
+
+Explainability
+
+Speed
+
+Auditability
+
+
+
+---
+
+📌 Status
+
+Hackathon Prototype
+Focused on problem-solving, clarity, and deployable architecture.
 
